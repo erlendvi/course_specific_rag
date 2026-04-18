@@ -15,6 +15,13 @@ def extract_pdf_text(path: str) -> str:
         text += t + "\n"
     return text
 
+def extract_pdf_text_by_page(path: str) -> list[str]:
+    reader = PdfReader(path)
+    page_texts = []
+    for page in reader.pages:
+        page_texts.append((page.extract_text() or "").strip())
+    return page_texts
+
 def chunk_text(text: str, max_chars=2000, overlap=200):
     chunks = []
     start = 0
@@ -65,3 +72,38 @@ def extract_images_from_pdf(pdf_path: str, output_dir: str = "data/images"):
             })
 
     return images_info
+
+def render_pdf_pages_to_images(
+    pdf_path: str,
+    output_dir: str = "data/page_images",
+    zoom: float = 2.0,
+    page_numbers: set[int] | None = None,
+):
+    pdf_path = Path(pdf_path)
+    out_dir = Path(output_dir)
+    out_dir.mkdir(parents=True, exist_ok=True)
+
+    doc = fitz.open(pdf_path)
+    pages_info = []
+    matrix = fitz.Matrix(zoom, zoom)
+
+    for page_index in range(len(doc)):
+        page_number = page_index + 1
+        if page_numbers is not None and page_number not in page_numbers:
+            continue
+
+        page = doc[page_index]
+        pixmap = page.get_pixmap(matrix=matrix, alpha=False)
+        filename = f"{pdf_path.stem}_page{page_number}.png"
+        filepath = out_dir / filename
+        pixmap.save(filepath)
+
+        pages_info.append({
+            "pdf": pdf_path.name,
+            "page": page_number,
+            "path": str(filepath),
+            "width": pixmap.width,
+            "height": pixmap.height,
+        })
+
+    return pages_info

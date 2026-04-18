@@ -1,0 +1,3 @@
+# Install PaddlePaddle separately first because CPU/GPU packages differ by platform.
+# Official docs: https://www.paddleocr.ai/v3.3.0/en/version3.x/installation.html
+paddleocr~=3.0

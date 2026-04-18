@@ -4,11 +4,14 @@
 # Database / data
 src/chroma_db/
 chromadb/
+chroma_db/
 data/
 
 # Python
 __pycache__/
 *.pyc
+.venv-paddleocr/
+.paddlex_cache/
 
 # IDE
 .idea/
